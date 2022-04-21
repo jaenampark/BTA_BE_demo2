@@ -5,22 +5,26 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Map;
+
 @Component
 public class GreetingClient {
 
     private final WebClient client;
 
-    public GreetingClient(WebClient.Builder builder) {
-        this.client = builder.baseUrl("http://localhost:8080").build();
+    public GreetingClient() {
+        this.client = WebClient.create("http://localhost:8081");
     }
 
-    public Mono<String> getMessage() {
-        return this.client.get().uri(uriBuilder -> uriBuilder.path("/hello")
-                        .queryParam("name", "value")
-                        .build()).accept(MediaType.APPLICATION_JSON)
+    public Mono<Map> getJob(String name) {
+        return this.client.get()
+                .uri(uriBuilder ->
+                        uriBuilder.path("/info-service/"+name)
+                                .build()
+                )
+                .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(Greeting.class)
-                .map(Greeting::getName);
+                .bodyToMono(Map.class);
     }
 
 }
